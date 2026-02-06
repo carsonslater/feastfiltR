@@ -184,6 +184,38 @@ book:
   - cream-of-mushroom-chicken-wild-rice-soup-.qmd
   - buffalo-chicken-dip-sliders.qmd
   - creamy-thai-red-curry-chicken-noodle-soup.qmd
+  - crockpot-spicy-queso-beef-chili.qmd
+  - pumpkin-beer-pretzels-with-chipotle-queso-.qmd
+  - detroit-style-tomato-herb-pepperoni-pizza.qmd
+  - pull-apart-cheeseburger-sliders-.qmd
+  - crispy-carnitas-tacos-with-roasted-jalape-o-lime-avocado.qmd
+  - crockpot-buffalo-chicken-chili.qmd
+  - baked-garlic-parmesan-boneless-wings.qmd
+  - sheet-pan-honey-buffalo-chicken-with-broccoli.qmd
+  - crockpot-chipotle-honey-pot-roast-tacos.qmd
+  - pull-apart-roasted-garlic-butter-pizza-dip-sliders.qmd
+  - sheet-pan-buffalo-chicken-pizza.qmd
+  - crispy-cheesy-sweet-potato-skins.qmd
+  - crockpot-crispy-buffalo-chicken-tacos-with-jalape-o-ranch.qmd
+  - baked-crunchy-hot-honey-chicken.qmd
+  - jalape-o-pepper-jack-cheeseburger-sliders.qmd
+  - chipotle-chicken-nachos-with-jalape-o-yogurt.qmd
+  - everything-ranch-cheese-and-pretzel-snack-mix.qmd
+  - whipped-goat-cheese-candied-bacon-dip.qmd
+  - granny-s-7-layer-dip.qmd
+  - spinach-and-artichoke-stuffed-soft-pretzels-.qmd
+  - hot-honey-pepperoni-pizza-rolls.qmd
+  - fried-buffalo-goat-cheese-balls.qmd
+  - 3-ingredient-blue-cheese-appetizer.qmd
+  - crispy-turmeric-chicken-tenders.qmd
+  - sloppy-hot-italian-cheese-dip.qmd
+  - 5-ingredient-magic-cookies.qmd
+  - really-good-chewy-chocolate-chip-cookies.qmd
+  - chocolate-peanut-butter-oatmeal-bars.qmd
+  - frosted-brown-butter-snickerdoodle-blondie-bars.qmd
+  - homemade-baked-frosted-chocolate-donuts.qmd
+  - homemade-hostess-cupcakes-.qmd
+  - baked-maple-bacon-doughnuts.qmd
 format:
   PrettyPDF-pdf:
     keep-tex: true
