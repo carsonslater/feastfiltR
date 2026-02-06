@@ -1,0 +1,22 @@
+# R
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+.Rapp.history
+.DS_Store
+
+# Virtual Environment
+.venv/
+
+# Generated Recipes and Data
+cookbook/*.qmd
+!cookbook/index.qmd
+cookbook/images/
+recipes.duckdb
+
+# Quarto
+.quarto/
+_site/
+cookbook/_book/
+cookbook/.quarto/

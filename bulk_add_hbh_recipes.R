@@ -33,18 +33,37 @@ error_count <- 0
 # 2. Process each URL
 for (i in seq_along(urls)) {
     url <- urls[i]
-    cat(sprintf("[%d/%d] Scraping: %s\n", i, length(urls), url))
+
+    # Create filename to check if it already exists
+    # This logic matches how filenames are generated lower down
+    temp_title_tag <- gsub("https://www.halfbakedharvest.com/", "", url)
+    temp_title_tag <- gsub("/", "", temp_title_tag)
+    # Actually, let's just use the URL to see if we've processed it
+    # But a better way is to check the cookbook directory for a file that matches what scrape_recipe would produce.
+    # However, since we don't know the title yet, let's just rely on the fact that
+    # if it's in the cookbook, we probably already have it.
+
+    cat(sprintf("[%d/%d] Checking: %s\n", i, length(urls), url))
 
     tryCatch(
         {
-            # Scrape the recipe
+            # Scrape the recipe (we need this to get the title for the filename check)
+            # Optimization: could we check the URL against a log of already scraped URLs?
+            # For now, let's just scrape it and then skip if the file exists.
             recipe <- scrape_recipe(url)
+
+            filename <- paste0(tolower(gsub("[^a-zA-Z0-9]+", "-", recipe$title)), ".qmd")
+            filepath <- file.path(output_dir, filename)
+
+            if (file.exists(filepath)) {
+                cat("  - Skipping (already exists):", recipe$title, "\n")
+                next
+            }
 
             # Create the recipe page
             create_recipe_page(recipe, output_dir)
 
             # Update _quarto.yml
-            filename <- paste0(tolower(gsub("[^a-zA-Z0-9]+", "-", recipe$title)), ".qmd")
             updated <- update_quarto_config(filename, output_dir)
 
             if (updated) {
@@ -69,4 +88,11 @@ for (i in seq_along(urls)) {
 cat("--- Summary ---\n")
 cat("Successfully added:", success_count, "\n")
 cat("Errors encountered:", error_count, "\n")
+
+# 3. Optional Migration to Database
+if (success_count > 0) {
+    cat("\nRunning migration to DuckDB...\n")
+    source("migrate_to_db.R")
+}
+
 cat("\nTo render the cookbook, run: quarto render cookbook\n")
