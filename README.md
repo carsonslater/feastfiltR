@@ -1,60 +1,55 @@
-# Slater Family Cookbook
+# feastfiltR: The Slater Family Cookbook
 
-A tool to scrape recipes from websites and generate a beautifully formatted PDF cookbook using R and Quarto with the PrettyPDF theme.
+A modern recipe management and discovery tool. `feastfiltR` allows you to maintain a local database of your favorite recipes, search for what to cook based on the ingredients you have on hand, and view them in a beautiful desktop application.
+
+![Recipe Finder UI](ui1.png)
+![Recipe Detail View](ui2.png)
+
+## Features
+
+- **Ingredient-Based Discovery**: Use the "Recipe Finder" to select ingredients from your pantry and find matching recipes.
+- **Local Recipe Viewer**: The "Let's Cook!" tab provides a clean, distraction-free view of your recipes with full instructions and images.
+- **Easy Import**: Add new recipes from any URL directly within the app's interface.
+- **DuckDB Backend**: Blazing fast SQL-based searching and structured data storage.
+- **Desktop Experience**: Runs as a standalone macOS application via a Python wrapper.
+- **Beautiful Exports**: Still maintains the ability to generate a Quarto PDF cookbook.
 
 ## Quick Start
 
-### Add a Recipe
+### Launch the Desktop App
 
-Simply run the following command with a recipe URL:
-
+To start the application in a standalone window, run:
 ```zsh
-Rscript add_recipe.R <recipe_url>
+./.venv/bin/python3 desktop_app.py
 ```
 
-**Example:**
+### Launch the Web App
+
+If you prefer to run the app in your favorite browser:
 ```zsh
-Rscript add_recipe.R https://www.cookwell.com/recipe/chicken-posole-verde
+Rscript run_app.R
 ```
 
-### Bulk Add from Half Baked Harvest
+## Advanced Usage
 
-To scrape a batch of recipes from [Half Baked Harvest](https://www.halfbakedharvest.com):
+### Manual PDF Generation
 
-```zsh
-Rscript bulk_add_hbh_recipes.R <limit>
-```
-
-**Example:**
-```zsh
-Rscript bulk_add_hbh_recipes.R 20
-```
-
-### Generate the Cookbook PDF
-
-After adding recipes, render the cookbook:
-
+You can still render the static PDF cookbook using Quarto:
 ```zsh
 quarto render cookbook
 ```
 
-The PDF will be created at `cookbook/_book/Slater-Family-Cookbook.pdf`
+### Command Line Tools
 
-## Features
-
-- **Easy Recipe Addition**: One command to scrape and add individual recipes.
-- **Bulk Scraping**: Automated URL discovery and batch processing for Half Baked Harvest.
-- **Robust Extraction**: Handles complex JSON-LD structures (including `@graph` formats).
-- **Beautiful PDF Output**: Custom theme with high-quality images and formatting.
-- **Smart Formatting**: 
-    - Automatically splits embedded instructions into numbered lists.
-    - Decodes HTML entities in titles and ingredients.
-    - Ensures UTF-8 encoding for reliable rendering.
+- `add_recipe.R <url>`: Add a single recipe from the terminal.
+- `bulk_add_hbh_recipes.R <limit>`: Batch import recipes from Half Baked Harvest.
+- `migrate_to_db.R`: Re-sync your `.qmd` files in `cookbook/` with the DuckDB database.
 
 ## Project Structure
 
-- `R/` - Core functions (scraper, page generator, URL discovery)
-- `cookbook/` - Quarto book project
-- `add_recipe.R` - Tools for adding individual recipes
-- `bulk_add_hbh_recipes.R` - Automated discovery and bulk addition for HBH
-- `generate_cookbook.R` - Template for manual batch generation
+- `app.R`: Main Shiny application logic.
+- `global.R`: App configuration and database connectivity.
+- `desktop_app.py`: Python wrapper for the desktop window.
+- `recipes.duckdb`: The central recipe database.
+- `cookbook/`: Source `.qmd` files and images for the cookbook.
+- `R/`: Core scraping and utility functions.
