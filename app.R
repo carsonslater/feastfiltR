@@ -191,7 +191,8 @@ server <- function(input, output, session) {
 
                 dbExecute(write_con, "DELETE FROM ingredients WHERE recipe_id = ?", list(recipe_id))
                 for (ing in recipe_data$ingredients) {
-                    dbExecute(write_con, "INSERT INTO ingredients (recipe_id, ingredient) VALUES (?, ?)", list(recipe_id, ing))
+                    clean_ing <- clean_ingredient(ing)
+                    dbExecute(write_con, "INSERT INTO ingredients (recipe_id, ingredient, clean_ingredient) VALUES (?, ?, ?)", list(recipe_id, ing, clean_ing))
                 }
 
                 dbDisconnect(write_con, shutdown = TRUE)

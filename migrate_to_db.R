@@ -3,6 +3,7 @@ library(duckdb)
 library(yaml)
 library(stringr)
 library(jsonlite)
+source("R/ingredient_utils.R")
 
 # Paths
 db_path <- "recipes.duckdb"
@@ -132,7 +133,8 @@ for (f in qmd_files) {
     dbExecute(con, "DELETE FROM ingredients WHERE recipe_id = ?", list(recipe$id))
 
     for (ing in recipe$ingredients) {
-        dbExecute(con, "INSERT INTO ingredients (recipe_id, ingredient) VALUES (?, ?)", list(recipe$id, ing))
+        clean_ing <- clean_ingredient(ing)
+        dbExecute(con, "INSERT INTO ingredients (recipe_id, ingredient, clean_ingredient) VALUES (?, ?, ?)", list(recipe$id, ing, clean_ing))
     }
 }
 

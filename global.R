@@ -15,10 +15,13 @@ con <- dbConnect(duckdb::duckdb(), dbdir = db_path, read_only = TRUE)
 # Serve images from the cookbook directory
 addResourcePath("images", file.path(getwd(), "cookbook/images"))
 
+# Source utilities
+source("R/ingredient_utils.R")
+
 # Helper function to get all unique ingredients for selectizeInput
 get_all_ingredients <- function() {
-    res <- dbGetQuery(con, "SELECT DISTINCT ingredient FROM ingredients ORDER BY ingredient")
-    res$ingredient
+    res <- dbGetQuery(con, "SELECT DISTINCT clean_ingredient FROM ingredients WHERE clean_ingredient IS NOT NULL ORDER BY clean_ingredient")
+    res$clean_ingredient
 }
 
 # Helper function to find recipes matching ingredients
@@ -34,12 +37,12 @@ search_recipes <- function(selected_ingredients) {
     # SQL to find recipes containing ALL selected ingredients
     placeholder <- paste(rep("?", length(selected_ingredients)), collapse = ",")
     query <- paste0("
-    SELECT r.*, COUNT(i.ingredient) as match_count
+    SELECT r.*, COUNT(DISTINCT i.clean_ingredient) as match_count
     FROM recipes r
     JOIN ingredients i ON r.id = i.recipe_id
-    WHERE i.ingredient IN (", placeholder, ")
+    WHERE i.clean_ingredient IN (", placeholder, ")
     GROUP BY r.id, r.title, r.source_url, r.image_path, r.prep_time, r.cook_time, r.total_time, r.yield, r.instructions, r.created_at
-    HAVING COUNT(i.ingredient) = ?
+    HAVING COUNT(DISTINCT i.clean_ingredient) = ?
   ")
 
     dbGetQuery(con, query, params = as.list(c(selected_ingredients, length(selected_ingredients))))

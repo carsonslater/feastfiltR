@@ -28,6 +28,7 @@ dbExecute(con, "
   CREATE TABLE IF NOT EXISTS ingredients (
     recipe_id VARCHAR,
     ingredient VARCHAR,
+    clean_ingredient VARCHAR,
     FOREIGN KEY (recipe_id) REFERENCES recipes(id)
   )
 ")
