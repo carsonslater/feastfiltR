@@ -1,0 +1,81 @@
+--- Testing Ollama-based ingredient parsing ---
+Original: '2 1/2 cup bread flour'
+Parsed JSON components:
+{
+  "name": "bread flour",
+  "amount": 2.5,
+  "unit": "cup",
+  "prep": {}
+} 
+Cleaned Name: 'bread flour'
+--------------------------------------------
+Original: '2 cup all purpose flour'
+Parsed JSON components:
+{
+  "name": "flour",
+  "amount": 2,
+  "unit": "cup",
+  "prep": {}
+} 
+Cleaned Name: 'flour'
+--------------------------------------------
+Original: '2 cup almond milk vanilla sweetened'
+Parsed JSON components:
+{
+  "name": "almond milk",
+  "amount": 2,
+  "unit": "cup",
+  "prep": "vanilla sweetened"
+} 
+Cleaned Name: 'almond milk'
+--------------------------------------------
+Original: '2 green onions (chopped)'
+Parsed JSON components:
+{
+  "name": "green onion",
+  "amount": 2,
+  "unit": {},
+  "prep": "chopped"
+} 
+Cleaned Name: 'onion'
+--------------------------------------------
+Original: '1/2 teaspoon salt'
+Parsed JSON components:
+{
+  "name": "salt",
+  "amount": 0.5,
+  "unit": "teaspoon",
+  "prep": {}
+} 
+Cleaned Name: 'salt'
+--------------------------------------------
+Original: '1.5 lbs chicken breast, sliced'
+Parsed JSON components:
+{
+  "name": "chicken breast",
+  "amount": 1.5,
+  "unit": "lbs",
+  "prep": "sliced"
+} 
+Cleaned Name: 'chicken breast'
+--------------------------------------------
+Original: '½ cup butter'
+Parsed JSON components:
+{
+  "name": "butter",
+  "amount": 0.5,
+  "unit": "cup",
+  "prep": {}
+} 
+Cleaned Name: 'butter'
+--------------------------------------------
+Original: '1 can (15 oz) black beans, drained and rinsed'
+Parsed JSON components:
+{
+  "name": "black beans",
+  "amount": 15,
+  "unit": "oz",
+  "prep": "drained and rinsed"
+} 
+Cleaned Name: 'black beans'
+--------------------------------------------
