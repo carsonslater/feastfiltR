@@ -7,7 +7,6 @@
 #'   Rscript scripts/bulk_process.R --url "https://..."
 #'   Rscript scripts/bulk_process.R --limit 50 --parallel
 
-library(optparse)
 library(future.apply)
 library(dplyr)
 
@@ -19,35 +18,46 @@ cookbook_dir <- "cookbook"
 source("R/recipe_workflow.R")
 source("R/get_hbh_urls.R")
 
-# Define options
-option_list <- list(
-    make_option(c("-u", "--url"),
-        type = "character", default = NULL,
-        help = "Specific URL to scrape", metavar = "URL"
-    ),
-    make_option(c("-l", "--limit"),
-        type = "integer", default = 10,
-        help = "Number of recipes to fetch/process (if not providing URL)", metavar = "NUMBER"
-    ),
-    make_option(c("-p", "--parallel"),
-        action = "store_true", default = FALSE,
-        help = "Enable parallel processing (4 workers)", metavar = "BOOL"
-    )
-)
+# Manual Argument Parsing
+args <- commandArgs(trailingOnly = TRUE)
 
-opt_parser <- OptionParser(option_list = option_list)
-opt <- parse_args(opt_parser)
+# Defaults
+limit <- 10
+url <- NULL
+parallel <- FALSE
+
+# Parse loop
+i <- 1
+while (i <= length(args)) {
+    arg <- args[i]
+
+    if (arg == "--limit" || arg == "-l") {
+        if (i + 1 <= length(args)) {
+            limit <- as.integer(args[i + 1])
+            i <- i + 1 # Skip next arg as it's the value
+        }
+    } else if (arg == "--url" || arg == "-u") {
+        if (i + 1 <= length(args)) {
+            url <- args[i + 1]
+            i <- i + 1
+        }
+    } else if (arg == "--parallel" || arg == "-p") {
+        parallel <- TRUE
+    }
+
+    i <- i + 1
+}
 
 # Determine URLs to process
 urls_to_process <- c()
 
-if (!is.null(opt$url)) {
-    urls_to_process <- c(opt$url)
+if (!is.null(url)) {
+    urls_to_process <- c(url)
 } else {
-    message(paste("Fetching top", opt$limit, "URLs from Half Baked Harvest..."))
+    message(paste("Fetching top", limit, "URLs from Half Baked Harvest..."))
     tryCatch(
         {
-            urls_to_process <- get_hbh_urls(limit = opt$limit)
+            urls_to_process <- get_hbh_urls(limit = limit)
         },
         error = function(e) {
             stop(paste("Failed to fetch URLs:", e$message))
@@ -63,14 +73,19 @@ if (length(urls_to_process) == 0) {
 message(paste("Found", length(urls_to_process), "URLs to process."))
 
 # Processing Loop
-if (opt$parallel) {
+if (parallel) {
     message("Starting PARALLEL processing (4 workers)...")
     plan(multisession, workers = 4)
 
     results <- future_lapply(urls_to_process, function(url) {
-        # Re-source necessary files in worker if needed, but future usually handles exports.
-        # To be safe with DuckDB connections in parallel, we rely on process_recipe creating its own connection.
-        process_recipe(url, db_path = db_path, cookbook_dir = cookbook_dir)
+        tryCatch(
+            {
+                process_recipe(url, db_path = db_path, cookbook_dir = cookbook_dir)
+            },
+            error = function(e) {
+                list(status = "error", message = e$message)
+            }
+        )
     }, future.seed = TRUE)
 } else {
     message("Starting SEQUENTIAL processing...")

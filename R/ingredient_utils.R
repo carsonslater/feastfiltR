@@ -172,3 +172,22 @@ clean_ingredient_ollama <- function(text, parsed = NULL) {
 
   return(cleaned_name)
 }
+
+#' Check if Ollama is running and available
+#'
+#' @param host The Ollama host URL (default: "http://localhost:11434")
+#' @return TRUE if available, FALSE otherwise
+#' @export
+check_ollama_availability <- function(host = "http://localhost:11434") {
+  tryCatch(
+    {
+      req <- httr2::request(host) %>%
+        httr2::req_timeout(2) # Short timeout
+      resp <- httr2::req_perform(req)
+      return(httr2::resp_status(resp) == 200)
+    },
+    error = function(e) {
+      return(FALSE)
+    }
+  )
+}

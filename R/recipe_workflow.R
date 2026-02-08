@@ -28,6 +28,11 @@ source("R/update_config.R")
 #' @param force_reparse If TRUE, re-scrapes even if ID exists (optional logic)
 #' @return A list with status ("success", "skipped", "error") and message
 process_recipe <- function(url, db_path = "recipes.duckdb", cookbook_dir = "cookbook", force_reparse = FALSE) {
+    # Check Ollama Availability
+    if (!check_ollama_availability()) {
+        warning("Ollama is not running or unreachable. Falling back to regex-based cleaning.")
+    }
+
     # Connect to DB
     # We want to manage the connection locally for this function call
     con <- dbConnect(duckdb::duckdb(), dbdir = db_path)
