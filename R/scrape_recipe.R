@@ -233,6 +233,7 @@ scrape_recipe <- function(url) {
 
   list(
     title = title,
+    url = url,
     image = image,
     prep_time = prep_time,
     cook_time = cook_time,

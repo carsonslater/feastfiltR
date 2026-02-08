@@ -84,6 +84,7 @@ create_recipe_page <- function(recipe_data, output_dir = "cookbook") {
     "---\n",
     "title: \"", title, "\"\n",
     "image: \"", image_path_to_use, "\"\n",
+    "source_url: \"", if (is.null(recipe_data$url)) "" else recipe_data$url, "\"\n",
     "---\n"
   )
 

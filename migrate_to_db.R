@@ -46,6 +46,7 @@ parse_qmd <- function(filepath) {
 
     title <- extract_val("title", yaml_content)
     image <- extract_val("image", yaml_content)
+    source_url <- extract_val("source_url", yaml_content)
 
     if (is.null(title)) {
         return(NULL)
@@ -94,7 +95,7 @@ parse_qmd <- function(filepath) {
     list(
         id = tools::file_path_sans_ext(basename(filepath)),
         title = title,
-        source_url = NA, # Not in .qmd
+        source_url = if (is.null(source_url) || source_url == "") NA else source_url,
         image_path = image,
         prep_time = if (is.null(prep_time)) "" else prep_time,
         cook_time = if (is.null(cook_time)) "" else cook_time,
