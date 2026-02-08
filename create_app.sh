@@ -48,9 +48,14 @@ cat > "$APP_DIR/Contents/MacOS/launcher" <<EOF
 #!/bin/bash
 PROJECT_DIR="$PROJECT_ROOT"
 
-# Navigate to project dir and run desktop_app.py
-cd "\$PROJECT_DIR"
-./.venv/bin/python3 desktop_app.py
+# Use AppleScript to tell Terminal to launch the app
+# This ensures we inherit Terminal's file permissions and visibility
+osascript <<EOD
+tell application "Terminal"
+    do script "cd '\$PROJECT_DIR' && ./.venv/bin/python3 desktop_app.py"
+    activate
+end tell
+EOD
 EOF
 
 chmod +x "$APP_DIR/Contents/MacOS/launcher"
