@@ -91,27 +91,48 @@ server <- function(input, output, session) {
 
     # Render Table
     output$recipe_table <- renderDT({
+        query_cols <- "id, image_path, title, prep_time, cook_time, total_time"
         data <- if (length(input$ingredients_filter) == 0) {
-            dbGetQuery(con, "SELECT id, title, prep_time, cook_time, total_time FROM recipes ORDER BY title")
+            dbGetQuery(con, sprintf("SELECT %s FROM recipes ORDER BY title", query_cols))
         } else {
-            filtered_recipes() %>% select(id, title, prep_time, cook_time, total_time)
+            filtered_recipes() %>% select(id, image_path, title, prep_time, cook_time, total_time)
         }
+
+        # Transform image_path into formatted HTML img tag
+        data <- data %>%
+            mutate(
+                Image = ifelse(!is.na(image_path) & image_path != "",
+                    sprintf('<img src="images/%s" height="70" style="object-fit: cover; border-radius: 4px; aspect-ratio: 1/1;">', basename(image_path)),
+                    '<div style="height: 70px; width: 70px; display: flex; align-items: center; justify-content: center; background: #ecf0f1; border-radius: 4px; color: #95a5a6; font-size: 0.8rem;">No Pix</div>'
+                )
+            ) %>%
+            select(Image, title, prep_time, cook_time, total_time, id)
 
         datatable(
             data,
             selection = "single",
-            options = list(pageLength = 10, dom = "ftp"),
+            escape = FALSE,
+            options = list(
+                pageLength = 10,
+                dom = "ftp",
+                columnDefs = list(
+                    list(targets = 0, orderable = FALSE, width = "80px"),
+                    list(targets = 5, visible = FALSE) # Hide ID column
+                )
+            ),
             rownames = FALSE,
-            colnames = c("ID", "Recipe Name", "Prep", "Cook", "Total")
+            colnames = c("Photo", "Recipe Name", "Prep", "Cook", "Total", "ID")
         )
     })
 
     # Handle Selection
     observeEvent(input$recipe_table_rows_selected, {
+        # Use a more stable way to get the data that matches the table
+        query_cols <- "id, title"
         data <- if (length(input$ingredients_filter) == 0) {
-            dbGetQuery(con, "SELECT id, title, prep_time, cook_time, total_time FROM recipes ORDER BY title")
+            dbGetQuery(con, sprintf("SELECT %s FROM recipes ORDER BY title", query_cols))
         } else {
-            filtered_recipes() %>% select(id, title, prep_time, cook_time, total_time)
+            filtered_recipes() %>% select(id, title)
         }
 
         row_idx <- input$recipe_table_rows_selected
