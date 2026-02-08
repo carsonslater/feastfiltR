@@ -1,0 +1,6 @@
+#!/bin/bash
+PROJECT_DIR="/Users/carson/Documents/R_Projects/feastfiltR"
+
+# Navigate to project dir and run desktop_app.py
+cd "$PROJECT_DIR"
+./.venv/bin/python3 desktop_app.py
