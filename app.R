@@ -191,43 +191,36 @@ server <- function(input, output, session) {
     # Scrape & Add
     observeEvent(input$scrape_btn, {
         req(input$recipe_url)
-        output$scrape_status <- renderUI(div("Scraping...", class = "text-info"))
+        output$scrape_status <- renderUI(div("Starting process...", class = "text-info"))
+
+        # Create a future/async task or just run synchronously for now (simplest integration first)
+        # To avoid blocking, we'd need promises/future, but R Shiny is single-threaded by default w/o promises.
+        # Given the requirement was "streamline", synchronous is acceptable if it's cleaner,
+        # but user specifically asked for "good workflow".
+        # The new process_recipe function handles everything.
+
+        # We need to source the new workflow script if not already sourced globally
+        # But sourcing inside observeEvent is bad practice. We should source it at top level.
+        # For this edit, I'll add the sourcing to the top of app.R if I could, but here I'm replacing lines 192-236.
+        # I'll rely on global.R or just source it here once to be safe, or assume I'll update global.R next.
+        # Let's source it here locally to ensure it works immediately without restarting strict dependency chains.
+        source("R/recipe_workflow.R")
 
         tryCatch(
             {
-                # Scrape
-                recipe_data <- scrape_recipe(input$recipe_url)
+                output$scrape_status <- renderUI(div("Scraping and parsing (this may take a moment)...", class = "text-info"))
 
-                # Create page (for cookbook)
-                create_recipe_page(recipe_data)
+                result <- process_recipe(input$recipe_url, db_path = "recipes.duckdb", cookbook_dir = "cookbook")
 
-                # Update DB
-                recipe_id <- tolower(gsub("[^a-zA-Z0-9]+", "-", recipe_data$title))
-
-                # Connect for writing (global con is read-only)
-                write_con <- dbConnect(duckdb::duckdb(), dbdir = db_path)
-
-                dbExecute(write_con, "
-        INSERT OR REPLACE INTO recipes (id, title, source_url, image_path, prep_time, cook_time, total_time, yield, instructions)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ", list(
-                    recipe_id, recipe_data$title, input$recipe_url, NA,
-                    recipe_data$prep_time, recipe_data$cook_time, recipe_data$total_time, NA,
-                    toJSON(recipe_data$instructions)
-                ))
-
-                dbExecute(write_con, "DELETE FROM ingredients WHERE recipe_id = ?", list(recipe_id))
-                for (ing in recipe_data$ingredients) {
-                    clean_ing <- clean_ingredient(ing)
-                    dbExecute(write_con, "INSERT INTO ingredients (recipe_id, ingredient, clean_ingredient) VALUES (?, ?, ?)", list(recipe_id, ing, clean_ing))
+                if (result$status == "success") {
+                    # Update selectize
+                    updateSelectizeInput(session, "ingredients_filter", choices = get_all_ingredients(), server = TRUE)
+                    output$scrape_status <- renderUI(div(paste("✓", result$message), class = "text-success"))
+                } else if (result$status == "skipped") {
+                    output$scrape_status <- renderUI(div(paste("⚠", result$message), class = "text-warning"))
+                } else {
+                    output$scrape_status <- renderUI(div(paste("✗", result$message), class = "text-danger"))
                 }
-
-                dbDisconnect(write_con, shutdown = TRUE)
-
-                # Update selectize
-                updateSelectizeInput(session, "ingredients_filter", choices = get_all_ingredients(), server = TRUE)
-
-                output$scrape_status <- renderUI(div(paste("✓ Successfully added:", recipe_data$title), class = "text-success"))
             },
             error = function(e) {
                 output$scrape_status <- renderUI(div(paste("✗ Error:", e$message), class = "text-danger"))
