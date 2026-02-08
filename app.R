@@ -161,6 +161,12 @@ server <- function(input, output, session) {
                 } else {
                     div("No image available", class = "text-muted text-center p-4")
                 },
+                if (!is.na(recipe$source_url) && recipe$source_url != "") {
+                    div(
+                        style = "margin-top: 15px; text-align: center;",
+                        a(href = recipe$source_url, target = "_blank", class = "btn btn-outline-primary btn-sm", icon("external-link-alt"), " Original Recipe Source")
+                    )
+                },
                 hr(),
                 p(icon("clock"), " Prep: ", recipe$prep_time),
                 p(icon("fire"), " Cook: ", recipe$cook_time),
